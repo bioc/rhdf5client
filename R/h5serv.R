@@ -25,7 +25,7 @@ setMethod("show", "H5S_source", function(object) {
 })
 
 # private: extract hostname from a file URL (return null for group URL)
-fixtarget = function(x) sub(".*host=(.*).hdfgroup.org", "\\1", x)
+fixtarget = function(x) sub(".*host=(.*).h5s.channingremotedata.org", "\\1", x)
 
 #' construct H5S_source
 #' @name H5S_source
@@ -38,7 +38,7 @@ fixtarget = function(x) sub(".*host=(.*).hdfgroup.org", "\\1", x)
 #' search all groups for candidate datasets.
 #' @return an initialized object of type H5S_source
 #' @examples
-#' bigec2 = H5S_source("http://54.174.163.77:5000")
+#' bigec2 = H5S_source("http://h5s.channingremotedata.org:5000")
 #' bigec2
 #' dsmeta(bigec2)[1:2,]       # two groups
 #' dsmeta(bigec2)[1,2][[1]]   # all dataset candidates in group 1
@@ -60,7 +60,7 @@ H5S_source = function(serverURL, ...) {
 #' @return data frame with one row for each group and three columns. The 
 #' second column has the list of datasets in the group.
 #' @examples
-#' bigec2 = H5S_source("http://54.174.163.77:5000")
+#' bigec2 = H5S_source("http://h5s.channingremotedata.org:5000")
 #' dsm <- dsmeta(bigec2) 
 #' dst <- unlist(dsm[1,2])    # all dataset candidates in group 1
 #' @export
@@ -85,7 +85,7 @@ setMethod("[[", c("H5S_source", "character", "ANY"), function(x, i, j) {
 #' @param \dots not used
 #' @return a data frame with group name and number of links for each group
 #' @examples
-#' bigec2 = H5S_source("http://54.174.163.77:5000")
+#' bigec2 = H5S_source("http://h5s.channingremotedata.org:5000")
 #' groups(bigec2)
 #' @aliases groups,H5S_source,missing-method
 #' @aliases groups
@@ -143,7 +143,7 @@ setMethod("show", "H5S_linkset", function(object) {
 #' @param \dots not used
 #' @return an object of type H5S_linkset with the linkset of the group
 #' @examples
-#' bigec2 = H5S_source("http://54.174.163.77:5000")
+#' bigec2 = H5S_source("http://h5s.channingremotedata.org:5000")
 #' lks <- links(bigec2, 1)    # linkset for root group 
 #' urls <- targets(lks)       # URLs of datasets in linkset
 #' @aliases links,H5S_source,numeric-method
@@ -165,7 +165,7 @@ setMethod("links", c("H5S_source", "numeric"), function(object, index, ...) {
 #' @param index numeric index into link vector - ignored
 #' @return a vector of dataset tags
 #' @examples
-#' bigec2 = H5S_source("http://54.174.163.77:5000")
+#' bigec2 = H5S_source("http://h5s.channingremotedata.org:5000")
 #' lks <- links(bigec2, 1)    # linkset for first group (Note: first group is the root group, by construction)
 #' urls <- targets(lks)       # URLs of datasets in linkset
 #' @export
@@ -197,7 +197,7 @@ hosts = function(h5linkset, index, cleanIP=TRUE) {
 #' @slot hrefs DataFrame of hrefs as defined in the API
 #' @slot allatts list of all attributes
 #' @slot presel string prepared for select operation in GET
-#' @slot transfermode default "JSON" or "bin" for binary transfer
+#' @slot transfermode default "JSON" or "binary" for binary transfer
 #' @exportClass H5S_dataset
 
 setClass("H5S_dataset", representation(
@@ -240,7 +240,7 @@ transl = function(targ)  {
   if (rsp$status_code != 200)  
     stop(paste("error: can't read JSON ", targ, sep=""))
   jsn <- readBin(rsp$content, what="character")
-  dat <- fromJSON(jsn)
+  fromJSON(jsn)
 }
 
 # private: get numeric content from host by binary transfer
@@ -252,8 +252,20 @@ bintransl = function(targ, nele)  {
     stop(paste("error: can't read binary ", targ, sep=""))
 
   # TODO: need to check the HDF5 class for size and byte order
-  dat <- readBin(rsp$content, what="integer", n = nele, size = NA_integer_, 
+  readBin(rsp$content, what="integer", n = nele, size = NA_integer_, 
     signed = TRUE, endian = "little")
+}
+
+# private: get numeric content from host by JSON transfer
+# param targ is the URL with query
+# param nele is the number of numeric elements expected (ignored)
+jsontransl = function(uu, nele)  {  
+  val <- transl(uu)$value
+  if (is.list(val))  {
+    result <- do.call(c, val)
+  } else {
+    result <- val
+  }
 }
 
 #' extract elements from H5S_dataset
@@ -281,10 +293,10 @@ setMethod("[", c("H5S_dataset", "numeric", "numeric"), function(x, i, j, ..., dr
   if (all(j < 0)) {
     j <- ivindx(j, internalDim(x)[2]) 
   }
-  if (any(i) <= 0 | any(j) <= 0)  {
+  if (any(i <= 0) | any(j <= 0) )  {
     stop("index is negative")
   }
-  if (any(i) > internalDim(x)[1] | any(j) > internalDim(x)[2])  {
+  if (any(i > internalDim(x)[1]) | any(j > internalDim(x)[2]))  {
     stop("index is negative")
   }
 
@@ -366,12 +378,9 @@ setMethod("[", c("H5S_dataset", "character", "character"), function(x, i, j, ...
   }
   else  {
     # message(paste("JSON transfer", sep=""))
-    val <- transl(uu)$value
-    if (is.list(val)) {
-      val <- do.call(rbind, val)
-    }
+    val <- jsontransl(uu, nele)
   }
-  mat <- matrix(val, nrow=nrow, ncol=ncol, byrow = FALSE, dimnames = NULL)
+  mat <- matrix(val, nrow=nrow, ncol=ncol, byrow = TRUE, dimnames = NULL)
   # flip back negative ranges
   if (delta1 < 0)  {
     mat <- mat[c(nrow:1),,drop=FALSE]
@@ -418,7 +427,6 @@ dataset = function(h5s, tag) {
   self = ans["self", "hrefValue"]
   prep = sub("\\?host=", "/value?host=", self)
   prep = paste0(prep, "&select=[%%SEL1%%,%%SEL2%%]")
-  list(uuid=uuid, hrefs=ans, attrs=attrs)
  
   xjson = "JSON"
   new("H5S_dataset", source=h5s, simpleName=fulldsn,
@@ -429,7 +437,7 @@ dataset = function(h5s, tag) {
 #' @param h5d instance of H5S_dataset
 #' @return vector with dimensions of dataset
 #' @examples
-#' bigec2 = H5S_source("http://54.174.163.77:5000")
+#' bigec2 = H5S_source("http://h5s.channingremotedata.org:5000")
 #' tex <- bigec2[["tenx_100k_sorted"]]
 #' internalDim(tex)
 #' @export
@@ -437,9 +445,4 @@ internalDim = function(h5d) {
   d = slot(h5d, "shapes")$dims
   c(intl.dim1=d[1], intl.dim2=d[2])
 }
-
-
-#mys = new("H5S_source", serverURL="http://54.163.220.201:5000")
-#allg = groups(mys, 1)
-#lin1 = links(mys,1)
 
