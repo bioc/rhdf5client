@@ -8,7 +8,7 @@ URL_h5serv = function() "http://h5s.channingremotedata.org:5000"
 #' @examples
 #' URL_hsds()
 #' @export
-URL_hsds = function() "http://52.4.181.237:5101"
+URL_hsds = function() "http://hsdshdflab.hdfgroup.org"
 
 #' @importFrom httr GET
 #' @importFrom httr add_headers
@@ -194,7 +194,7 @@ setMethod("show", "H5S_linkset", function(object) {
 #'@return an updated object with folderPath set
 #'@examples
 #'hsdsCon = H5S_source(URL_hsds()) # hsds server connection
-#'setPath(hsdsCon, "/home/stvjc/tenx_full.h5")-> hsds
+#'setPath(hsdsCon, "/home/reshg/tenx_full.h5")-> hsds
 #'@docType methods
 #'@rdname setPath-methods
 #'@aliases setPath,H5S_source,character-method
@@ -587,7 +587,7 @@ setMethod("hsdsInfo", c("H5S_source"), function(object) {
 #' @return a data frame with domains name
 #' @examples 
 #' hsdsCon = H5S_source(URL_hsds()) # hsds server connection
-#' setPath(hsdsCon, "/home/stvjc/")-> hsds
+#' setPath(hsdsCon, "/home/reshg/")-> hsds
 #' domains(hsds)
 #' @docType methods
 #' @aliases domains,H5S_source-method
@@ -619,7 +619,7 @@ setMethod("domains", c("H5S_source"), function(object, ...) {
 #'@return character of dataset uuid obtained 
 #'@examples
 #'hsdsCon = H5S_source(URL_hsds()) # hsds server
-#'setPath(hsdsCon, "/home/stvjc/tenx_full.h5")-> hsds
+#'setPath(hsdsCon, "/home/reshg/tenx_full.h5")-> hsds
 #'getDatasetUUIDs(hsds)
 #'@export
 getDatasetUUIDs <- function(object) {
@@ -635,7 +635,7 @@ getDatasetUUIDs <- function(object) {
 #'@return list of data obtained
 #'@examples
 #'hsdsCon = H5S_source(URL_hsds()) # hsds server
-#'setPath(hsdsCon, "/home/stvjc/tenx_full.h5")-> hsds
+#'setPath(hsdsCon, "/home/reshg/tenx_full.h5")-> hsds
 #'getDatasetAttrs(hsds)
 #'@export
 getDatasetAttrs <- function(object) {
@@ -652,7 +652,7 @@ getDatasetAttrs <- function(object) {
 #'@return numeric content of dimensions
 #'@examples
 #'hsdsCon = H5S_source(URL_hsds()) # hsds server
-#'setPath(hsdsCon, "/home/stvjc/tenx_full.h5")-> hsds
+#'setPath(hsdsCon, "/home/reshg/tenx_full.h5")-> hsds
 #'getDims(hsds)
 #'@export
 getDims <- function(object) {
@@ -665,7 +665,7 @@ getDims <- function(object) {
 #'@return DataFrame of data obtained
 #'@examples
 #'hsdsCon = H5S_source(URL_hsds()) # hsds server
-#'setPath(hsdsCon, "/home/stvjc/tenx_full.h5")-> hsds
+#'setPath(hsdsCon, "/home/reshg/tenx_full.h5")-> hsds
 #'getHRDF(hsds)
 #'@export
 getHRDF <- function(object) {
@@ -681,7 +681,7 @@ getHRDF <- function(object) {
 #'@return H5S_dataset object
 #'@examples
 #'hsdsCon = H5S_source(URL_hsds()) # hsds server
-#'setPath(hsdsCon, "/home/stvjc/tenx_full.h5")-> hsds
+#'setPath(hsdsCon, "/home/reshg/tenx_full.h5")-> hsds
 #'H5S_dataset2(hsds)
 #'@export
 H5S_dataset2 = function(object) {
@@ -704,7 +704,7 @@ H5S_dataset2 = function(object) {
 #'@return list of data obtained
 #'@examples
 #'hsdsCon = H5S_source(URL_hsds()) # hsds server
-#'setPath(hsdsCon, "/home/stvjc/tenx_full.h5")-> hsds
+#'setPath(hsdsCon, "/home/reshg/tenx_full.h5")-> hsds
 #'getDatasetSlice(hsds,dsindex=1,selectionString="[1:10,1:50]")
 #'@export
 getDatasetSlice <- function(object, dsindex=1, selectionString, ...) {
