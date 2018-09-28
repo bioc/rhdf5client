@@ -17,6 +17,6 @@ getHRDF from hsds server
 }
 \examples{
 hsdsCon = H5S_source(URL_hsds()) # hsds server
-setPath(hsdsCon, "/home/reshg/tenx_full.h5")-> hsds
+setPath(hsdsCon, "/shared/bioconductor/tenx_full.h5")-> hsds
 getHRDF(hsds)
 }

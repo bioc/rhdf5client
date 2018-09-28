@@ -21,6 +21,6 @@ HSDS server domains accessor
 }
 \examples{
 hsdsCon = H5S_source(URL_hsds()) # hsds server connection
-setPath(hsdsCon, "/home/reshg/")-> hsds
+setPath(hsdsCon, "/shared/bioconductor/")-> hsds
 domains(hsds)
 }
